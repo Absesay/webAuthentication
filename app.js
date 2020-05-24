@@ -1,10 +1,10 @@
 require("dotenv").config();
-const md5 = require("md5");
 const express = require("express");
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
 const mongoose = require("mongoose");
-// const encrypt = require("mongoose-encryption");
+const bycrypt = require("bycrypt");
+const saltRounds = 10;
 
 const PORT = process.env.PORT || 3000;
 
@@ -24,7 +24,6 @@ const userSchema = new mongoose.Schema({
 });
 
 
-// userSchema.plugin(encrypt, {secret: process.env.SECRET, encryptedFields: ["password"]});
 
 // create model
 const User = mongoose.model("User", userSchema);
@@ -62,7 +61,7 @@ app.post("/register", (req,res)=> {
 app.post("/login", (req, res)=> {
     const userName = req.body.username;
     const pswd = md5(req.body.password);
-    // console.log(`${userName}, ${pswd}`);
+    
 
     // find user in DB, if found show secrets/decrypt
     User.findOne({email:userName}, (err, foundUser)=> {
