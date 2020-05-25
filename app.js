@@ -41,7 +41,7 @@ app.get("/register", (req, res) => {
 });
 
 app.post("/register", (req,res)=> {
-    bcrypt.hash(req.body.password, saltRounds, (err, hash)=> {
+    bcrypt.hash(req.body.password, saltRounds, (err, hash) => {
         // Store hash in your password DB.
         // create a new user
         const newUser = new User({
@@ -64,8 +64,7 @@ app.post("/register", (req,res)=> {
 
 app.post("/login", (req, res)=> {
     const userName = req.body.username;
-    const pswd = md5(req.body.password);
-    
+    const pswd = req.body.password;
 
     // find user in DB, if found show secrets/decrypt
     User.findOne({email:userName}, (err, foundUser)=> {
@@ -73,9 +72,12 @@ app.post("/login", (req, res)=> {
             console.log("record not match");
         } else {
             if(foundUser) {
-                if(foundUser.password === pswd){
-                    res.render("secrets")
-                }
+                bcrypt.compare(pswd, foundUser.password,(err, result)=> {
+                    if(result === true){
+                        res.render("secrets")
+                    }
+                });
+               
             }
         }
         
