@@ -3,7 +3,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
 const mongoose = require("mongoose");
-const bycrypt = require("bycrypt");
+const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
 const PORT = process.env.PORT || 3000;
@@ -41,21 +41,25 @@ app.get("/register", (req, res) => {
 });
 
 app.post("/register", (req,res)=> {
-    // create a new user
-    const newUser = new User({
-        email: req.body.username,
-        password: md5(req.body.password)
+    bcrypt.hash(req.body.password, saltRounds, (err, hash)=> {
+        // Store hash in your password DB.
+        // create a new user
+        const newUser = new User({
+            email: req.body.username,
+            password: hash
+        });
+        
+        // save and encrypt
+        newUser.save((err)=>{
+            if(!err) {
+                console.log("new user created");
+                res.render("secrets");
+            }
+            else console.log(err);
+            
+        });
     });
     
-    // save and encrypt
-    newUser.save((err)=>{
-        if(!err) {
-            console.log("new user created");
-            res.render("secrets");
-        }
-        else console.log(err);
-        
-    })
 });
 
 app.post("/login", (req, res)=> {
