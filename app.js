@@ -3,8 +3,9 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
 const mongoose = require("mongoose");
-const bcrypt = require('bcrypt');
-const saltRounds = 10;
+const session = require("express-session");
+const passport = require("passport");
+const passportLocalMongoose = require("passport-local-mongoose");
 
 const PORT = process.env.PORT || 3000;
 
@@ -41,47 +42,12 @@ app.get("/register", (req, res) => {
 });
 
 app.post("/register", (req,res)=> {
-    bcrypt.hash(req.body.password, saltRounds, (err, hash) => {
-        // Store hash in your password DB.
-        // create a new user
-        const newUser = new User({
-            email: req.body.username,
-            password: hash
-        });
-        
-        // save and encrypt
-        newUser.save((err)=>{
-            if(!err) {
-                console.log("new user created");
-                res.render("secrets");
-            }
-            else console.log(err);
-            
-        });
-    });
+    
     
 });
 
 app.post("/login", (req, res)=> {
-    const userName = req.body.username;
-    const pswd = req.body.password;
-
-    // find user in DB, if found show secrets/decrypt
-    User.findOne({email:userName}, (err, foundUser)=> {
-        if(err){
-            console.log("record not match");
-        } else {
-            if(foundUser) {
-                bcrypt.compare(pswd, foundUser.password,(err, result)=> {
-                    if(result === true){
-                        res.render("secrets")
-                    }
-                });
-               
-            }
-        }
-        
-    });
+   
     
 });
 
